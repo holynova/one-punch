@@ -1,0 +1,7 @@
+node_modules/
+.playwright-cli/
+output/
+dist/*
+!dist/
+!dist/repo2script.paste.js
+.DS_Store
