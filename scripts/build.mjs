@@ -1,3 +1,4 @@
+import { cp, mkdir } from "node:fs/promises";
 import { build } from "esbuild";
 
 await build({
@@ -13,5 +14,12 @@ await build({
     js: "/* Repo2Script Phase 1 - paste this file into a GitHub repository page Console. */"
   }
 });
+
+await mkdir("dist", { recursive: true });
+await Promise.all(
+  ["index.html", "styles.css", "favicon.svg", "screenshot.png"].map((file) =>
+    cp(file, `dist/${file}`),
+  ),
+);
 
 console.log("Built dist/repo2script.paste.js");

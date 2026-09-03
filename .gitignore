@@ -4,4 +4,8 @@ output/
 dist/*
 !dist/
 !dist/repo2script.paste.js
+!dist/index.html
+!dist/styles.css
+!dist/favicon.svg
+!dist/screenshot.png
 .DS_Store
