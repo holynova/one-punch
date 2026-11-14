@@ -41,16 +41,16 @@ h1 { margin: 0; color: #fff; font: 700 17px/1.2 ui-sans-serif, system-ui, sans-s
 .status { color: #d5deeb; min-height: 20px; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .stat { padding: 9px 10px; background: #1a2029; border: 1px solid #293241; border-radius: 8px; }
-.stat strong { display: block; color: #fff; font-size: 16px; }
+.stat strong { display: block; color: #fff; font-size: 17px; }
 .stat span { color: #98a4b5; font-size: 11px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 button { cursor: pointer; border: 1px solid #4b5a6e; border-radius: 7px; padding: 8px 12px; color: #fff; background: #253245; font: inherit; }
 button:hover { background: #30425a; }
-button.primary { border-color: #6aa8ff; background: #2563b8; }
-button.primary:hover { background: #3177d2; }
+button.primary { border-color: oklch(83% 0.19 116); background: oklch(83% 0.19 116); color: oklch(13% 0.018 90); }
+button.primary:hover { background: oklch(88% 0.16 116); border-color: oklch(88% 0.16 116); }
 button.ghost { padding: 3px 7px; color: #afbac9; background: transparent; border-color: #3a4554; }
 textarea { width: 100%; min-height: 250px; resize: vertical; padding: 12px; color: #dbe6f2; background: #0a0d11; border: 1px solid #303947; border-radius: 8px; outline: none; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.18); }
+textarea:focus { border-color: oklch(83% 0.19 116); box-shadow: 0 0 0 2px oklch(83% 0.19 116 / 0.25); }
 .notice { max-height: 100px; overflow: auto; padding: 9px 10px; color: #f4c77b; background: #2a2114; border: 1px solid #5b4424; border-radius: 8px; white-space: pre-wrap; }
 @media (max-width: 520px) { .panel { right: 8px; bottom: 8px; width: calc(100vw - 16px); padding: 14px; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 `;
@@ -67,6 +67,12 @@ function element<K extends keyof HTMLElementTagNameMap>(
 
 function formatError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function makeStat(document: Document, value: string, label: string): HTMLDivElement {
@@ -97,17 +103,17 @@ export function createOverlay(
   header.className = "title-row";
   const heading = element(document, "div");
   heading.append(element(document, "h1", "Repo2Script"));
-  const subtitle = element(document, "div", "Browser-only · GitHub HTML · text files");
+  const subtitle = element(document, "div", "纯浏览器运行 | GitHub 网页 | 文本文件");
   subtitle.className = "subtle";
   heading.append(subtitle);
   const close = element(document, "button", "×");
   close.className = "ghost";
-  close.title = "Close";
+  close.title = "关闭";
   close.addEventListener("click", () => host.remove());
   header.append(heading, close);
   panel.append(header);
 
-  const status = element(document, "div", "Reading repository tree…");
+  const status = element(document, "div", "正在读取仓库目录…");
   status.className = "status";
   panel.append(status);
 
@@ -120,24 +126,24 @@ export function createOverlay(
     setProgress(progress) {
       const location = progress.url.replace(/^https?:\/\/github\.com\//, "");
       status.textContent =
-        `${progress.phase === "tree" ? "Scanning" : "Reading"} ${location} · ` +
-        `${progress.textFiles} text · ${progress.unsupportedFiles} unsupported`;
+        `${progress.phase === "tree" ? "正在扫描" : "正在读取"} ${location} | ` +
+        `${progress.textFiles} 个文本文件 | ${progress.unsupportedFiles} 个不支持`;
     },
     showResult(repository, setupScript) {
-      status.textContent = `Ready · ${repository.name} @ ${repository.ref}`;
+      status.textContent = `就绪 | ${repository.name} @ ${repository.ref}`;
       body.replaceChildren();
 
       const stats = element(document, "div");
       stats.className = "stats";
       stats.append(
-        makeStat(document, String(repository.files.length), "text files"),
-        makeStat(document, String(repository.unsupported.length), "unsupported"),
+        makeStat(document, String(repository.files.length), "文本文件"),
+        makeStat(document, String(repository.unsupported.length), "不支持"),
         makeStat(
           document,
-          String(repository.files.reduce((sum, file) => sum + file.byteLength, 0)),
-          "UTF-8 bytes"
+          formatBytes(repository.files.reduce((sum, file) => sum + file.byteLength, 0)),
+          "UTF-8 大小"
         ),
-        makeStat(document, String(repository.warnings.length), "warnings")
+        makeStat(document, String(repository.warnings.length), "警告")
       );
       body.append(stats);
 
@@ -145,8 +151,8 @@ export function createOverlay(
         const notice = element(document, "div");
         notice.className = "notice";
         const lines = [
-          ...repository.unsupported.map((item) => `Unsupported: ${item.path} — ${item.reason}`),
-          ...repository.warnings.map((warning) => `Warning: ${warning}`)
+          ...repository.unsupported.map((item) => `不支持：${item.path} — ${item.reason}`),
+          ...repository.warnings.map((warning) => `警告：${warning}`)
         ];
         notice.textContent = lines.join("\n");
         body.append(notice);
@@ -154,19 +160,19 @@ export function createOverlay(
 
       const textarea = element(document, "textarea");
       textarea.value = setupScript;
-      textarea.setAttribute("aria-label", "Generated setup.sh");
+      textarea.setAttribute("aria-label", "生成的 setup.sh");
       textarea.spellcheck = false;
       body.append(textarea);
 
       const actions = element(document, "div");
       actions.className = "actions";
-      const copy = element(document, "button", "Copy setup.sh");
+      const copy = element(document, "button", "复制 setup.sh");
       copy.className = "primary";
       copy.addEventListener("click", async () => {
         try {
           if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
           await navigator.clipboard.writeText(setupScript);
-          copy.textContent = "Copied";
+          copy.textContent = "已复制";
         } catch {
           textarea.focus();
           textarea.select();
@@ -176,10 +182,10 @@ export function createOverlay(
           } catch {
             copied = false;
           }
-          copy.textContent = copied ? "Copied" : "Select all and copy";
+          copy.textContent = copied ? "已复制" : "请全选后复制";
         }
       });
-      const select = element(document, "button", "Select text");
+      const select = element(document, "button", "选中全部文本");
       select.addEventListener("click", () => {
         textarea.focus();
         textarea.select();
@@ -188,7 +194,7 @@ export function createOverlay(
       body.append(actions);
     },
     showError(error) {
-      status.textContent = "Stopped";
+      status.textContent = "已停止";
       body.replaceChildren();
       const notice = element(document, "div", formatError(error));
       notice.className = "notice";
@@ -196,7 +202,7 @@ export function createOverlay(
       const retryHint = element(
         document,
         "div",
-        "Check that this is a GitHub repository page and that the repository is visible, then paste the script again."
+        "请确认这是 GitHub 仓库页面且仓库可见，然后重新粘贴脚本。"
       );
       retryHint.className = "subtle";
       body.append(retryHint);
@@ -206,12 +212,12 @@ export function createOverlay(
     }
   };
 
-  const cancel = element(document, "button", "Cancel");
+  const cancel = element(document, "button", "取消");
   cancel.className = "ghost";
   cancel.addEventListener("click", () => {
     options.onCancel();
     cancel.disabled = true;
-    cancel.textContent = "Cancelling…";
+    cancel.textContent = "正在取消…";
   });
   header.insertBefore(cancel, close);
 

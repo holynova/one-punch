@@ -1005,16 +1005,16 @@ h1 { margin: 0; color: #fff; font: 700 17px/1.2 ui-sans-serif, system-ui, sans-s
 .status { color: #d5deeb; min-height: 20px; }
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .stat { padding: 9px 10px; background: #1a2029; border: 1px solid #293241; border-radius: 8px; }
-.stat strong { display: block; color: #fff; font-size: 16px; }
+.stat strong { display: block; color: #fff; font-size: 17px; }
 .stat span { color: #98a4b5; font-size: 11px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 button { cursor: pointer; border: 1px solid #4b5a6e; border-radius: 7px; padding: 8px 12px; color: #fff; background: #253245; font: inherit; }
 button:hover { background: #30425a; }
-button.primary { border-color: #6aa8ff; background: #2563b8; }
-button.primary:hover { background: #3177d2; }
+button.primary { border-color: oklch(83% 0.19 116); background: oklch(83% 0.19 116); color: oklch(13% 0.018 90); }
+button.primary:hover { background: oklch(88% 0.16 116); border-color: oklch(88% 0.16 116); }
 button.ghost { padding: 3px 7px; color: #afbac9; background: transparent; border-color: #3a4554; }
 textarea { width: 100%; min-height: 250px; resize: vertical; padding: 12px; color: #dbe6f2; background: #0a0d11; border: 1px solid #303947; border-radius: 8px; outline: none; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.18); }
+textarea:focus { border-color: oklch(83% 0.19 116); box-shadow: 0 0 0 2px oklch(83% 0.19 116 / 0.25); }
 .notice { max-height: 100px; overflow: auto; padding: 9px 10px; color: #f4c77b; background: #2a2114; border: 1px solid #5b4424; border-radius: 8px; white-space: pre-wrap; }
 @media (max-width: 520px) { .panel { right: 8px; bottom: 8px; width: calc(100vw - 16px); padding: 14px; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 `;
@@ -1025,6 +1025,11 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
   }
   function formatError(error) {
     return error instanceof Error ? error.message : String(error);
+  }
+  function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
   function makeStat(document, value, label) {
     const box = element(document, "div");
@@ -1048,16 +1053,16 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
     header.className = "title-row";
     const heading = element(document, "div");
     heading.append(element(document, "h1", "Repo2Script"));
-    const subtitle = element(document, "div", "Browser-only \xB7 GitHub HTML \xB7 text files");
+    const subtitle = element(document, "div", "\u7EAF\u6D4F\u89C8\u5668\u8FD0\u884C | GitHub \u7F51\u9875 | \u6587\u672C\u6587\u4EF6");
     subtitle.className = "subtle";
     heading.append(subtitle);
     const close = element(document, "button", "\xD7");
     close.className = "ghost";
-    close.title = "Close";
+    close.title = "\u5173\u95ED";
     close.addEventListener("click", () => host.remove());
     header.append(heading, close);
     panel.append(header);
-    const status = element(document, "div", "Reading repository tree\u2026");
+    const status = element(document, "div", "\u6B63\u5728\u8BFB\u53D6\u4ED3\u5E93\u76EE\u5F55\u2026");
     status.className = "status";
     panel.append(status);
     const body = element(document, "div");
@@ -1067,48 +1072,48 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
     const handle = {
       setProgress(progress) {
         const location = progress.url.replace(/^https?:\/\/github\.com\//, "");
-        status.textContent = `${progress.phase === "tree" ? "Scanning" : "Reading"} ${location} \xB7 ${progress.textFiles} text \xB7 ${progress.unsupportedFiles} unsupported`;
+        status.textContent = `${progress.phase === "tree" ? "\u6B63\u5728\u626B\u63CF" : "\u6B63\u5728\u8BFB\u53D6"} ${location} | ${progress.textFiles} \u4E2A\u6587\u672C\u6587\u4EF6 | ${progress.unsupportedFiles} \u4E2A\u4E0D\u652F\u6301`;
       },
       showResult(repository, setupScript) {
-        status.textContent = `Ready \xB7 ${repository.name} @ ${repository.ref}`;
+        status.textContent = `\u5C31\u7EEA | ${repository.name} @ ${repository.ref}`;
         body.replaceChildren();
         const stats = element(document, "div");
         stats.className = "stats";
         stats.append(
-          makeStat(document, String(repository.files.length), "text files"),
-          makeStat(document, String(repository.unsupported.length), "unsupported"),
+          makeStat(document, String(repository.files.length), "\u6587\u672C\u6587\u4EF6"),
+          makeStat(document, String(repository.unsupported.length), "\u4E0D\u652F\u6301"),
           makeStat(
             document,
-            String(repository.files.reduce((sum, file) => sum + file.byteLength, 0)),
-            "UTF-8 bytes"
+            formatBytes(repository.files.reduce((sum, file) => sum + file.byteLength, 0)),
+            "UTF-8 \u5927\u5C0F"
           ),
-          makeStat(document, String(repository.warnings.length), "warnings")
+          makeStat(document, String(repository.warnings.length), "\u8B66\u544A")
         );
         body.append(stats);
         if (repository.unsupported.length > 0 || repository.warnings.length > 0) {
           const notice = element(document, "div");
           notice.className = "notice";
           const lines = [
-            ...repository.unsupported.map((item) => `Unsupported: ${item.path} \u2014 ${item.reason}`),
-            ...repository.warnings.map((warning) => `Warning: ${warning}`)
+            ...repository.unsupported.map((item) => `\u4E0D\u652F\u6301\uFF1A${item.path} \u2014 ${item.reason}`),
+            ...repository.warnings.map((warning) => `\u8B66\u544A\uFF1A${warning}`)
           ];
           notice.textContent = lines.join("\n");
           body.append(notice);
         }
         const textarea = element(document, "textarea");
         textarea.value = setupScript;
-        textarea.setAttribute("aria-label", "Generated setup.sh");
+        textarea.setAttribute("aria-label", "\u751F\u6210\u7684 setup.sh");
         textarea.spellcheck = false;
         body.append(textarea);
         const actions = element(document, "div");
         actions.className = "actions";
-        const copy = element(document, "button", "Copy setup.sh");
+        const copy = element(document, "button", "\u590D\u5236 setup.sh");
         copy.className = "primary";
         copy.addEventListener("click", async () => {
           try {
             if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable");
             await navigator.clipboard.writeText(setupScript);
-            copy.textContent = "Copied";
+            copy.textContent = "\u5DF2\u590D\u5236";
           } catch {
             textarea.focus();
             textarea.select();
@@ -1118,10 +1123,10 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
             } catch {
               copied = false;
             }
-            copy.textContent = copied ? "Copied" : "Select all and copy";
+            copy.textContent = copied ? "\u5DF2\u590D\u5236" : "\u8BF7\u5168\u9009\u540E\u590D\u5236";
           }
         });
-        const select = element(document, "button", "Select text");
+        const select = element(document, "button", "\u9009\u4E2D\u5168\u90E8\u6587\u672C");
         select.addEventListener("click", () => {
           textarea.focus();
           textarea.select();
@@ -1130,7 +1135,7 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
         body.append(actions);
       },
       showError(error) {
-        status.textContent = "Stopped";
+        status.textContent = "\u5DF2\u505C\u6B62";
         body.replaceChildren();
         const notice = element(document, "div", formatError(error));
         notice.className = "notice";
@@ -1138,7 +1143,7 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
         const retryHint = element(
           document,
           "div",
-          "Check that this is a GitHub repository page and that the repository is visible, then paste the script again."
+          "\u8BF7\u786E\u8BA4\u8FD9\u662F GitHub \u4ED3\u5E93\u9875\u9762\u4E14\u4ED3\u5E93\u53EF\u89C1\uFF0C\u7136\u540E\u91CD\u65B0\u7C98\u8D34\u811A\u672C\u3002"
         );
         retryHint.className = "subtle";
         body.append(retryHint);
@@ -1147,12 +1152,12 @@ textarea:focus { border-color: #6aa8ff; box-shadow: 0 0 0 2px rgba(106,168,255,.
         host.remove();
       }
     };
-    const cancel = element(document, "button", "Cancel");
+    const cancel = element(document, "button", "\u53D6\u6D88");
     cancel.className = "ghost";
     cancel.addEventListener("click", () => {
       options.onCancel();
       cancel.disabled = true;
-      cancel.textContent = "Cancelling\u2026";
+      cancel.textContent = "\u6B63\u5728\u53D6\u6D88\u2026";
     });
     header.insertBefore(cancel, close);
     return handle;
