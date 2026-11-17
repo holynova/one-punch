@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="360" viewBox="0 0 1200 360"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Repo2Script — 把看得见的 GitHub 仓库变成 setup.sh，一段粘贴脚本搞定</title>
+  <desc id="desc">深橄榄黑底配柠檬黄强调：左上标题 Repo2Script；右侧终端面板，三步流程——打开仓库页、打开 DevTools Console、粘贴 repo2script.paste.js，随后扫描、读取、写出 setup.sh。</desc>
+
+  <rect width="1200" height="360" rx="26" fill="#10110f"/>
+
+  <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <text x="56" y="62" font-size="19" letter-spacing="3" fill="#d7f75b">GITHUB HTML → LOCAL SHELL</text>
+    <text x="56" y="128" font-size="62" font-weight="700" fill="#f2f0e8">Repo2Script</text>
+    <text x="56" y="168" font-size="23" fill="#e8e6dc">把看得见的 GitHub 仓库，变成 setup.sh</text>
+    <text x="56" y="204" font-size="19" fill="#b8b5a8">打开仓库页，粘贴一段脚本，文本文件全部带走。</text>
+    <g id="chips" font-size="18" fill="#f2f0e8" text-anchor="middle">
+      <g><rect x="56" y="238" width="126" height="36" rx="18" fill="#1c1e1a" stroke="#3a3d33" stroke-width="1.5"/><text x="119" y="262">无需 Token</text></g>
+      <g><rect x="194" y="238" width="126" height="36" rx="18" fill="#1c1e1a" stroke="#3a3d33" stroke-width="1.5"/><text x="257" y="262">无需 clone</text></g>
+      <g><rect x="332" y="238" width="204" height="36" rx="18" fill="#1c1e1a" stroke="#3a3d33" stroke-width="1.5"/><text x="434" y="262">500 文件 · 10 MiB</text></g>
+      <g><rect x="548" y="238" width="114" height="36" rx="18" fill="#1c1e1a" stroke="#3a3d33" stroke-width="1.5"/><text x="605" y="262">Phase 1</text></g>
+    </g>
+  </g>
+
+  <g id="terminal" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace">
+    <rect x="760" y="48" width="384" height="264" rx="14" fill="#1a1c18" stroke="#3a3d33" stroke-width="1.5"/>
+    <text x="915" y="80" font-size="16" fill="#8a877a" text-anchor="middle">repo2script.paste.js</text>
+    <text x="1112" y="80" font-size="16" fill="#8a877a" text-anchor="end">v0.1.0</text>
+    <g id="term-lines" font-size="16">
+      <text x="784" y="122" fill="#b8b5a8"><tspan fill="#6e6b5e">01 › </tspan>open github.com/owner/repo</text>
+      <text x="784" y="154" fill="#b8b5a8"><tspan fill="#6e6b5e">02 › </tspan>open DevTools Console</text>
+      <text x="784" y="186" fill="#d7f75b"><tspan fill="#6e6b5e">03 › </tspan>paste dist/repo2script.paste.js</text>
+      <text x="784" y="234" fill="#b8b5a8"><tspan fill="#e8a34c">scan  </tspan>current repository tree</text>
+      <text x="784" y="266" fill="#b8b5a8"><tspan fill="#e8a34c">read  </tspan>UTF-8 text files</text>
+      <text x="784" y="298" fill="#d7f75b"><tspan fill="#e8a34c">write </tspan>setup.sh</text>
+    </g>
+    <g id="term-dots">
+      <circle cx="778" cy="74" r="4" fill="#e8a34c"/>
+      <circle cx="792" cy="74" r="4" fill="#8a877a"/>
+      <circle cx="806" cy="74" r="4" fill="#8a877a"/>
+    </g>
+  </g>
+</svg>
